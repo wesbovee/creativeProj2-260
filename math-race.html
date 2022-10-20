@@ -1,0 +1,185 @@
+<html>
+    <head>
+        <title>Math Race</title>
+        <link rel="stylesheet" href="mr.css">
+    </head>
+    <body>
+      <h1>
+        Math Race 
+      </h1>
+      <p> 
+        You will be given 2 operands and an operation.
+        <br>
+        You will have 60 seconds to solve 10 equations
+      </p>
+        <form>
+            Enter A Max Number: <br><input type="text" id="maxNum" value=""><br>
+            
+            <input id="maxButton" type="submit" value="Submit">
+        </form>
+         
+      <div id= "maxCor">
+        <div id="max">
+          <p class="smalltext">Max Number:</p>
+          <div id="maxVal">?</div>
+        </div>
+
+        <div id="correct">
+          <p class="smalltext">Number Correct:</p>
+          <div id="correctVal">?</div>
+        </div>
+      </div>
+        <!-----------------------------timer------------------------------------>
+    <h2>Countdown Clock</h2>
+<div id="clockdiv">
+  <div>
+    <span class="seconds"></span>
+    <div class="smalltext">Seconds</div>
+  </div>
+</div>
+</br>
+
+</br>
+      
+          <p>Equation:</p>
+          <div id="equation">Equation will appear here when race starts</div>
+        <br>
+        <br>
+        <form>
+            Answer: <br>
+            <input type="text" id="checkInput" value=""><br>
+            
+            <input id="checkButton" type="submit" value="Submit Answer">
+        </form>
+  <script>
+        
+        let an = 'nothing';
+        let cor = 0 ;
+        let value;
+        let sec;
+        let rec;
+    
+        document.getElementById("maxButton").addEventListener("click", function(event) {
+            event.preventDefault();
+            value = document.getElementById("maxNum").value;
+                
+            const url = "https://x-math.herokuapp.com/api/random?max="+value;
+                    
+            console.log(url);
+            fetch(url)
+            .then(function(response) {
+                return response.json();
+                })
+            .then(function(json) {	
+                console.log(json);
+                var ex = json["expression"];
+                an = json["answer"];
+                console.log(ex);
+                var equation = document.getElementById('equation');
+                document.getElementById("maxVal").innerHTML = value;
+                document.getElementById("equation").innerHTML = ex;
+                console.log(an);
+                
+                })
+                
+            .then(function(seconds){
+              
+              function getTimeRemaining(endtime) {
+                const total = Date.parse(endtime) - Date.parse(new Date());
+                const seconds = Math.floor((total / 1000) % 60);
+  
+                return {
+                total,
+                seconds
+                };
+                }
+              function initializeClock(id, endtime) {
+              const clock = document.getElementById(id);
+              const secondsSpan = clock.querySelector('.seconds');
+
+              function updateClock() {
+              const t = getTimeRemaining(endtime);
+              
+
+              secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+              sec = ('0' + t.seconds).slice(-2);
+
+              if (t.total <= 0) {
+              clearInterval(timeinterval);
+                }
+              }
+
+              updateClock();
+              const timeinterval = setInterval(updateClock, 1000);
+              }
+
+              const deadline = new Date(Date.parse(new Date()) + 60 * 1000);
+              initializeClock('clockdiv', deadline);
+              
+              return 0;
+             });
+             
+            
+             
+        });
+           
+               document.getElementById("checkButton").addEventListener("click", function(event){
+               event.preventDefault();
+                const response = document.getElementById('checkInput').value;
+                checkInput.value = '';
+                console.log (response);
+                console.log(an);
+                parseInt(response);
+                console.log (parseInt(response));
+                
+
+  //----------------check answer              
+                if (parseInt(response)===an && sec>0){
+                  cor++;
+                  document.getElementById("correctVal").innerHTML = cor;
+                  console.log ("correct!!!");
+                  rec = sec; 
+                   console.log (rec);
+                  
+  
+  // ------------------- present new equation 
+                if (cor<10){
+                  const url = "https://x-math.herokuapp.com/api/random?max="+value;
+                    
+                  console.log(url);
+                  fetch(url)
+                  .then(function(response) {
+                    return response.json();
+                    })
+                  .then(function(json) {	
+                      console.log(json);
+                      var ex = json["expression"];
+                    an = json["answer"];
+                    console.log(ex);
+                    var equation = document.getElementById('equation');
+                    document.getElementById("maxVal").innerHTML = value;
+                    document.getElementById("equation").innerHTML = ex;
+                    
+                    
+                    console.log(an);
+                    });
+                  
+                }
+                else if (cor>=10){
+                  clockdiv.innerHTML = "WOW! you finnished with "+sec+" seconds left!";
+                  maxCor.innerHTML ="Refresh the page and enter the same max to beat your score or enter a new max for a new challenge"
+                  
+                }
+                
+                }
+                else if (sec<0){
+                  let left = 10-cor;
+                   clockdiv.innerHTML ="You only had "+left+" left! Try it again! "
+                   maxCor.innerHTML ="Refresh the page and enter the same max to try it again! "
+                }
+                
+               });
+            
+            
+          
+        </script>
